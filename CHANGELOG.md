@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- "Copy instructions for your coding agent" bar at the top of every demo page; same prompt in the README.
+- Docs test enforcing that every guide uses the canonical domain and links the current release.
+
+### Changed
+- Canonical site moved to https://voice-of-the-oasis.palgu.ai (README, llms.txt, llms-full.txt, docs page, CLAUDE.md, session state).
+
 ## [0.1.1] - 2026-11-24
 
 ### Added

@@ -20,3 +20,22 @@ describe('docs stay in sync with the code', () => {
     for (const n of names) expect(mod, `${n} missing from ${from}`).toHaveProperty(n)
   })
 })
+
+describe('guides point at the live site', () => {
+  const read = (p: string) => readFileSync(new URL(`../../../${p}`, import.meta.url), 'utf8')
+  const SITE = 'https://voice-of-the-oasis.palgu.ai'
+
+  it.each(['README.md', 'llms.txt', 'llms-full.txt', 'CLAUDE.md', '_project_specs/session/current-state.md'])('%s uses the canonical domain', (file) => {
+    const text = read(file)
+    expect(text).toContain(SITE)
+    expect(text).not.toContain('voice-kit-demo.vercel.app')
+  })
+
+  it('llms.txt links the full reference, the docs page and the current release', () => {
+    const text = read('llms.txt')
+    const version = JSON.parse(read('packages/voice-kit/package.json')).version as string
+    expect(text).toContain(`${SITE}/llms-full.txt`)
+    expect(text).toContain(`${SITE}/docs`)
+    expect(text).toContain(`v${version}/workhub-voice-kit-${version}.tgz`)
+  })
+})

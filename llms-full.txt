@@ -2,7 +2,7 @@
 
 Package: `@workhub/voice-kit` (TypeScript, ESM). It is a Palgu-sponsored starter kit for the Voice of the Oasis hackathon.
 Goal: add ElevenLabs voice to any app with one key, `ELEVENLABS_API_KEY`.
-Repo: https://github.com/alinaqi/elevenlabs-voice-kit · Demo: https://voice-kit-demo.vercel.app
+Repo: https://github.com/alinaqi/elevenlabs-voice-kit · Demo: https://voice-of-the-oasis.palgu.ai
 
 ---------------------------------------------------------------------------------------------------
 ## 0. Rules for agents using this kit (read first)
@@ -21,7 +21,7 @@ Repo: https://github.com/alinaqi/elevenlabs-voice-kit · Demo: https://voice-kit
 ```bash
 npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.1/workhub-voice-kit-0.1.1.tgz @elevenlabs/react
 echo "ELEVENLABS_API_KEY=sk_..." >> .env.local      # the only required key
-curl -o public/hold-music.mp3 https://voice-kit-demo.vercel.app/hold-music.mp3   # optional, for hold music
+curl -o public/hold-music.mp3 https://voice-of-the-oasis.palgu.ai/hold-music.mp3   # optional, for hold music
 ```
 
 Peer deps: `react >= 18` and `@elevenlabs/react >= 1`. Both are needed only for the `/react` entry. Node 20+ (global `fetch` and `WebSocket`).

@@ -5,9 +5,19 @@
 
 Ship a bilingual (English / عربي) ElevenLabs voice agent in minutes, with **one key**: `ELEVENLABS_API_KEY`.
 
-- **Live demo:** https://voice-kit-demo.vercel.app
+- **Live demo:** https://voice-of-the-oasis.palgu.ai
 - **Call the agents:** `+1 350 218 1012`. Press 1 for Navigator, 2 for Soft Landing, 3 for HALA.
 - **Research API:** https://voice-kit-research.vercel.app
+
+### Using a coding agent? Paste this into Claude Code, Codex or Cursor
+
+```text
+Read https://voice-of-the-oasis.palgu.ai/llms-full.txt and integrate @workhub/voice-kit (ElevenLabs voice agents, English + Arabic, one ELEVENLABS_API_KEY) into this app.
+Pick the preset that fits my use case (navigator, soft-landing, hala or assistant) or create one with definePreset.
+Keep the key server-side, add the /api/token and /api/research routes, build a talk page with useVoiceAgent, and run the verify steps in section 8.
+```
+
+Agent docs: [`/llms.txt`](https://voice-of-the-oasis.palgu.ai/llms.txt) (index) · [`/llms-full.txt`](https://voice-of-the-oasis.palgu.ai/llms-full.txt) (full reference) · [`/docs`](https://voice-of-the-oasis.palgu.ai/docs) (human-readable).
 
 ```
 npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.1/workhub-voice-kit-0.1.1.tgz @elevenlabs/react

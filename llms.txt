@@ -5,8 +5,8 @@
 Coding agents: read `llms-full.txt` before writing code. It has install steps, every export with its signature, copy-paste recipes for Next.js, Express and Vite, and the ElevenLabs gotchas that cost hours if you hit them yourself.
 
 ## Docs
-- [Full reference for coding agents](https://voice-kit-demo.vercel.app/llms-full.txt): install, API, recipes, gotchas
-- [Human docs](https://voice-kit-demo.vercel.app/docs): the same content as a web page
+- [Full reference for coding agents](https://voice-of-the-oasis.palgu.ai/llms-full.txt): install, API, recipes, gotchas
+- [Human docs](https://voice-of-the-oasis.palgu.ai/docs): the same content as a web page
 - [README](https://github.com/alinaqi/elevenlabs-voice-kit#readme): overview, local run, deploy
 
 ## Install
@@ -14,11 +14,11 @@ Coding agents: read `llms-full.txt` before writing code. It has install steps, e
 - [Source](https://github.com/alinaqi/elevenlabs-voice-kit/tree/main/packages/voice-kit): `packages/voice-kit`
 
 ## Live examples
-- [Demo app](https://voice-kit-demo.vercel.app): agents for the 3 hackathon challenges, avatar, research, TTS, STT
+- [Demo app](https://voice-of-the-oasis.palgu.ai): agents for the 3 hackathon challenges, avatar, research, TTS, STT
 - [Demo source](https://github.com/alinaqi/elevenlabs-voice-kit/tree/main/apps/demo): Next.js 16 App Router usage of every feature
 - [Phone bridge source](https://github.com/alinaqi/elevenlabs-voice-kit/tree/main/apps/phone): Twilio ⇄ ElevenAgents with hold music; call +1 350 218 1012
 - [Research API](https://voice-kit-research.vercel.app): `POST /research {"question"}` returns `{answer, sources, confidence, cached}`
 
 ## Optional
 - [Architecture decisions](https://github.com/alinaqi/elevenlabs-voice-kit/tree/main/docs/adr): why things are built this way
-- [Hold music](https://voice-kit-demo.vercel.app/hold-music.mp3): ElevenLabs-generated, put it in your `public/`
+- [Hold music](https://voice-of-the-oasis.palgu.ai/hold-music.mp3): ElevenLabs-generated, put it in your `public/`

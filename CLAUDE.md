@@ -3,6 +3,11 @@
 ## Project
 ElevenLabs starter kit for the Voice of the Oasis hackathon (DSO × ElevenLabs × Doers Summit). See README.md and `_project_specs/overview.md`.
 
+## Live
+- Demo + docs: https://voice-of-the-oasis.palgu.ai (Vercel project `voice-kit-demo`, team workhub; the default *.vercel.app URL serves the same deploy)
+- Coding-agent docs: https://voice-of-the-oasis.palgu.ai/llms.txt · /llms-full.txt (canonical files at repo root; keep them in sync with the code, `test/docs.test.ts` enforces it)
+- Research API: https://voice-kit-research.vercel.app · Phone: https://voice-kit-phone.onrender.com, Twilio +1 350 218 1012
+
 ## Layout
 - `packages/voice-kit`: the TypeScript library (the product). Subpaths: `/presets`, `/tools`, `/next`, `/react`.
 - `apps/demo`: Next.js demo on Vercel.

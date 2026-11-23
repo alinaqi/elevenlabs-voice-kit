@@ -66,3 +66,14 @@ iframe.avatar { width: 100%; aspect-ratio: 9 / 16; max-height: 640px; border: 1p
 .docs code { color: var(--blue); }
 .docs pre code { color: inherit; }
 .docs p, .docs li { line-height: 1.65; }
+.agentbar { background: rgba(61,255,143,.06); border-bottom: 1px solid var(--line); }
+.agentbar .inner { max-width: 1180px; margin: 0 auto; padding: 8px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.agentbar-label { color: var(--yellow); font-size: 12px; white-space: nowrap; }
+.agentbar-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dim); font-size: 12px; }
+.agentbar-btn { padding: 6px 12px; font-size: 12px; white-space: nowrap; }
+@media (max-width: 640px) { .agentbar-text { display: none; } .agentbar-btn { width: 100%; } }
+nav { display: flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+nav::-webkit-scrollbar { display: none; }
+nav a { white-space: nowrap; }
+@media (max-width: 640px) { nav a:first-child { margin-left: 0; } header.top .inner > * { min-width: 0; } }
+html, body { overflow-x: hidden; }

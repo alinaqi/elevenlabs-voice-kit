@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
 import { Archivo_Black as Display, JetBrains_Mono as Mono } from 'next/font/google'
 import Link from 'next/link'
+import { AgentPromptBar } from '@/components/AgentPromptBar'
+import { SITE_URL } from '@/lib/site'
 import './globals.css'
 
 const mono = Mono({ subsets: ['latin'], variable: '--font-mono' })
 const display = Display({ subsets: ['latin'], weight: '400', variable: '--font-display' })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Voice Kit · Voice of the Oasis',
   description: 'ElevenLabs starter kit for the Voice of the Oasis hackathon — Dubai Silicon Oasis × ElevenLabs × Doers Summit.',
   alternates: { types: { 'text/plain': '/llms.txt' } }
@@ -51,6 +54,7 @@ export default function RootLayout ({ children }: { children: React.ReactNode })
     <html lang='en' className={`${mono.variable} ${display.variable}`}>
       <body>
         <Header />
+        <AgentPromptBar />
         <main>{children}</main>
         <Footer />
       </body>
