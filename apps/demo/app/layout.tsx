@@ -8,7 +8,8 @@ const display = Display({ subsets: ['latin'], weight: '400', variable: '--font-d
 
 export const metadata: Metadata = {
   title: 'Voice Kit · Voice of the Oasis',
-  description: 'ElevenLabs starter kit for the Voice of the Oasis hackathon — Dubai Silicon Oasis × ElevenLabs × Doers Summit.'
+  description: 'ElevenLabs starter kit for the Voice of the Oasis hackathon — Dubai Silicon Oasis × ElevenLabs × Doers Summit.',
+  alternates: { types: { 'text/plain': '/llms.txt' } }
 }
 
 function Header () {
@@ -26,6 +27,8 @@ function Header () {
           <Link href='/tts'>tts</Link>
           <Link href='/stt'>stt</Link>
           <Link href='/build'>build</Link>
+          <Link href='/docs'>docs</Link>
+          <a href='/llms.txt'>llms.txt</a>
         </nav>
       </div>
     </header>

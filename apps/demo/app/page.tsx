@@ -3,7 +3,7 @@ import { Wave } from '@/components/Wave'
 import { CHALLENGES } from '@/lib/challenges'
 import { PHONE_NUMBER } from '@/lib/server'
 
-const QUICKSTART = `npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.0/workhub-voice-kit-0.1.0.tgz
+const QUICKSTART = `npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.1/workhub-voice-kit-0.1.1.tgz
 # .env — the only key you need
 ELEVENLABS_API_KEY=sk_...
 
@@ -22,7 +22,8 @@ const EXTRAS = [
   { href: '/research', tag: 'facts', title: 'Fact research', text: 'Pre-researched hackathon facts + live lookups (Gemini 3.8 Flash + OpenAI).' },
   { href: '/tts', tag: 'tts', title: 'Text → speech', text: 'English and Arabic voices, one call.' },
   { href: '/stt', tag: 'stt', title: 'Speech → text', text: 'Record and transcribe with Scribe.' },
-  { href: '/build', tag: 'code', title: 'Use it in your app', text: 'Drop-in routes, React hook, Speech Engine, presets.' }
+  { href: '/build', tag: 'code', title: 'Use it in your app', text: 'Drop-in routes, React hook, Speech Engine, presets.' },
+  { href: '/docs', tag: 'llms.txt', title: 'Point Claude / Codex here', text: 'Docs + /llms.txt so your coding agent can integrate the kit for you.' }
 ]
 
 export default function Home () {

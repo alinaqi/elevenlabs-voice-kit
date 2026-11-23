@@ -1,0 +1,295 @@
+# Voice Kit: full reference for coding agents
+
+Package: `@workhub/voice-kit` (TypeScript, ESM). It is a Palgu-sponsored starter kit for the Voice of the Oasis hackathon.
+Goal: add ElevenLabs voice to any app with one key, `ELEVENLABS_API_KEY`.
+Repo: https://github.com/alinaqi/elevenlabs-voice-kit · Demo: https://voice-kit-demo.vercel.app
+
+---------------------------------------------------------------------------------------------------
+## 0. Rules for agents using this kit (read first)
+
+1. **Keep the key on the server.** Only server code reads `ELEVENLABS_API_KEY`. The browser gets short-lived conversation tokens, so never put the key in client code, `NEXT_PUBLIC_*` or `VITE_*` vars.
+2. **Use presets.** Start from a preset (`navigator`, `soft-landing`, `hala`, `assistant`) or `definePreset()`. Don't hand-write ElevenAgents JSON.
+3. **Agents provision themselves.** `kit.ensureAgent(preset)` creates the agent on first use and updates it in place after that (matched by name). To pin IDs, run `scripts/provision.mts` and set the `AGENT_ID_*` env vars.
+4. **Tool names in sync.** Every tool a preset declares needs a handler with the same name. `useVoiceAgent` wires the demo handlers automatically; pass `tools: {...}` to add or override handlers.
+5. **Mic access.** It must come from a user gesture (a click). `useVoiceAgent().start()` requests it.
+6. **Long-lived servers.** Twilio phone bridges and Speech Engine servers need a host that keeps WebSockets open (Render, Fly, Railway, a VM). Vercel serverless can't do this.
+7. **Demo data.** Fees, processing times and indoor directions in the bundled DSO data are demo values. Agents are told to say so.
+
+---------------------------------------------------------------------------------------------------
+## 1. Install
+
+```bash
+npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.1/workhub-voice-kit-0.1.1.tgz @elevenlabs/react
+echo "ELEVENLABS_API_KEY=sk_..." >> .env.local      # the only required key
+curl -o public/hold-music.mp3 https://voice-kit-demo.vercel.app/hold-music.mp3   # optional, for hold music
+```
+
+Peer deps: `react >= 18` and `@elevenlabs/react >= 1`. Both are needed only for the `/react` entry. Node 20+ (global `fetch` and `WebSocket`).
+
+Entry points:
+| Import | Runs on | Use for |
+|---|---|---|
+| `@workhub/voice-kit` | server (Node) | `createVoiceKit`, research, agent socket, Speech Engine, plus everything below |
+| `@workhub/voice-kit/next` | server (Fetch API `Request`→`Response`) | drop-in route handlers |
+| `@workhub/voice-kit/react` | browser | `VoiceKitProvider`, `useVoiceAgent`, `browserHold` |
+| `@workhub/voice-kit/presets` | anywhere | presets, `definePreset`, `buildAgentConfig`, tool specs |
+| `@workhub/voice-kit/tools` | anywhere | `defineClientTool`, demo handlers, mock calendar, `withHold` |
+
+---------------------------------------------------------------------------------------------------
+## 2. Recipes
+
+### 2a. Next.js (App Router): the shortest path
+
+```ts
+// app/api/token/route.ts
+import { createVoiceKit } from '@workhub/voice-kit'
+import { tokenRoute } from '@workhub/voice-kit/next'
+export const GET = tokenRoute({ kit: createVoiceKit() })
+// GET /api/token?preset=hala → { token, agentId }   (agent auto-created from the preset)
+// Optional: tokenRoute({ kit, agentIds: { hala: process.env.AGENT_ID_HALA } })
+```
+
+```ts
+// app/api/research/route.ts  (backs the research_fact tool; bundled facts + hosted research API)
+import { createResearchClient } from '@workhub/voice-kit'
+import { researchRoute } from '@workhub/voice-kit/next'
+export const maxDuration = 60
+export const POST = researchRoute({ research: createResearchClient() })
+```
+
+```tsx
+// app/talk/page.tsx
+'use client'
+import { VoiceKitProvider, useVoiceAgent } from '@workhub/voice-kit/react'
+
+function Talk () {
+  const agent = useVoiceAgent({ preset: 'hala' })
+  // agent.status: 'disconnected' | 'connecting' | 'connected'
+  // agent.lines: {role:'user'|'agent', text}[] · agent.events: tool events · agent.onHold: boolean
+  return (
+    <div>
+      <button onClick={agent.status === 'connected' ? agent.stop : agent.start}>{agent.status}</button>
+      {agent.lines.map((l, i) => <p key={i} dir='auto'><b>{l.role}</b> {l.text}</p>)}
+      {agent.onHold && <p>♪ researching…</p>}
+    </div>
+  )
+}
+export default function Page () { return <VoiceKitProvider><Talk /></VoiceKitProvider> }
+```
+
+Add `transpilePackages: ['@workhub/voice-kit']` to `next.config.ts` if your bundler complains.
+
+Optional routes:
+- `ttsRoute({ kit, maxChars })`: `POST {text, language?, voiceId?}` returns `audio/mpeg`.
+- `sttRoute({ kit, maxBytes })`: multipart `file` returns `{text, language}`.
+
+All routes include an in-memory per-IP rate limiter. Pass `limiter: createRateLimiter({ max, windowMs })` to change it.
+
+### 2b. Express / Fastify / plain Node server + any frontend (Vite, CRA, plain HTML)
+
+```ts
+import express from 'express'
+import { createVoiceKit, getPreset, createResearchClient } from '@workhub/voice-kit'
+
+const kit = createVoiceKit()
+const research = createResearchClient()
+const app = express().use(express.json())
+
+app.get('/api/token', async (req, res) => {
+  const preset = getPreset(String(req.query.preset ?? 'assistant'))
+  if (!preset) return res.status(404).json({ error: 'unknown preset' })
+  const agentId = await kit.ensureAgent(preset)
+  res.json({ token: await kit.conversationToken(agentId), agentId })
+})
+app.post('/api/research', async (req, res) => res.json(await research(String(req.body.question ?? ''))))
+app.listen(3001)
+```
+
+**Frontend (React).** Same as 2a: `useVoiceAgent({ preset: 'hala', tokenUrl: 'http://localhost:3001/api/token', researchUrl: 'http://localhost:3001/api/research' })`.
+You can also skip your own research route and point `researchUrl` straight at the hosted API, `https://voice-kit-research.vercel.app/research` (CORS is open).
+
+**Frontend without React:**
+
+```ts
+import { Conversation } from '@elevenlabs/client'
+import { createDemoToolHandlers, createMockCalendar } from '@workhub/voice-kit/tools'
+const { token } = await (await fetch('/api/token?preset=hala')).json()
+await navigator.mediaDevices.getUserMedia({ audio: true })
+const tools = createDemoToolHandlers({
+  calendar: createMockCalendar(),
+  research: async (q) => (await fetch('/api/research', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question: q }) })).json(),
+  hold: { start () {}, stop () {} }
+})
+const convo = await Conversation.startSession({ conversationToken: token, connectionType: 'webrtc', clientTools: tools, onMessage: console.log })
+```
+
+### 2c. Your own agent (any use case)
+
+```ts
+import { definePreset, defineClientTool, handoverTool, researchTool } from '@workhub/voice-kit'
+
+export const clinic = definePreset({
+  id: 'clinic',                          // stable: the agent is named "voice-kit · <name>"
+  name: 'Clinic Receptionist',
+  description: 'Books appointments at a clinic',
+  languages: ['en', 'ar'],               // first non-English language becomes the agent base (see gotcha G1)
+  greeting: 'Hello! مرحباً! How can I help?',   // short opening line for multilingual agents
+  firstMessage: { en: 'Hello! How can I help?', ar: 'مرحباً! كيف يمكنني مساعدتك؟' },  // required for every language
+  systemPrompt: 'You are the receptionist of …',
+  knowledge: ['Open 08:00–22:00 daily', 'Dr. Sara is a pediatrician'],  // injected into the prompt
+  tools: [
+    defineClientTool({
+      name: 'find_slot',                 // snake_case
+      description: 'Find the next free slot for a doctor',
+      params: { doctor: { type: 'string', description: 'Doctor name' }, day: { type: 'string', description: 'YYYY-MM-DD', optional: true } },
+      timeoutSecs: 20,                   // default 10
+      speakFirst: true                   // agent says "one moment…" before running it
+    }),
+    researchTool, handoverTool
+  ],
+  llm: 'gemini-3.8-flash',               // default; any ElevenLabs-hosted LLM id
+  voiceId: 'EXAVITQu4vr4xnSDxMaL',       // default multilingual voice
+  maxDurationSeconds: 300                // default
+})
+```
+
+Use the preset on the server with `await kit.ensureAgent(clinic)` (returns an agentId), then mint a token for it.
+
+On the client, pass the handlers:
+
+```ts
+useVoiceAgent({ preset: 'clinic', tools: { find_slot: async ({ doctor }) => `Next slot for ${doctor}: tomorrow 10:00` } })
+```
+
+**Register your preset with the token route:**
+
+```ts
+// app/api/token/route.ts
+export const GET = tokenRoute({ kit: createVoiceKit(), presets: { clinic } })   // GET /api/token?preset=clinic
+```
+
+Tool handlers return a **string** that the agent reads and speaks from. Return a readable sentence, including on errors.
+
+### 2d. Server-only building blocks
+
+```ts
+import { createVoiceKit } from '@workhub/voice-kit'
+const kit = createVoiceKit()                       // or createVoiceKit({ apiKey }) / ({ client })
+
+const mp3: Uint8Array = await kit.speak('مرحبا بكم', { language: 'ar' })            // picks eleven_flash_v2_5 for non-English
+const ulaw = await kit.speak('Hello', { format: 'ulaw_8000' })                        // telephony audio
+const { text, language } = await kit.transcribe(blob)                                 // Scribe, auto language detect
+const voices = await kit.listVoices('arabic')                                         // [{ id, name, accent, previewUrl }]
+const music = await kit.composeMusic('calm hold music, oud and pads', { lengthMs: 30000 })
+const agentId = await kit.ensureAgent(preset, 'web' | 'phone' | 'avatar')             // channel variants, see §4
+const token = await kit.conversationToken(agentId)                                    // WebRTC token for the browser
+const wss = await kit.signedUrl(agentId)                                              // WebSocket URL for server-side sessions
+kit.client                                                                            // the raw ElevenLabsClient for anything else
+```
+
+### 2e. Talk to an agent from a server (bots, tests, phone bridges)
+
+```ts
+import { connectAgent, createDemoToolHandlers, createMockCalendar, createResearchClient } from '@workhub/voice-kit'
+const socket = await connectAgent({
+  signedUrl: await kit.signedUrl(agentId),
+  tools: createDemoToolHandlers({ calendar: createMockCalendar(), research: createResearchClient(), hold: { start () {}, stop () {} } }),
+  onEvent: (e) => console.log(e)     // metadata | agent | user | audio | interruption | tool_call | close
+})
+socket.sendText('I want to renew a visa')          // or socket.sendAudio(base64Chunk) in the agent's input format
+const reply = await socket.waitFor('agent', 15000)
+socket.close()
+```
+
+### 2f. Speech Engine (bring your own LLM; ElevenLabs does STT/TTS/turn-taking)
+
+```ts
+import { createServer } from 'node:http'
+import { createVoiceKit, createSpeechEngine, serveSpeechEngine, geminiResponder } from '@workhub/voice-kit'
+const kit = createVoiceKit()
+// one-time: const engineId = await createSpeechEngine(kit.client, 'My engine', 'wss://my-host/ws')
+const http = createServer()
+serveSpeechEngine({ client: kit.client, engineId: process.env.SPEECH_ENGINE_ID!, httpServer: http,
+  respond: geminiResponder({ systemPrompt: 'Be brief.' }) })   // needs GEMINI_API_KEY; or any (transcript, signal) => AsyncIterable<string>
+http.listen(3001)
+```
+
+The browser connects with a token from `kit.conversationToken(engineId)` and `useConversation` / `Conversation.startSession`.
+
+---------------------------------------------------------------------------------------------------
+## 3. Built-in presets (Voice of the Oasis challenges)
+
+| id | Challenge | Tools |
+|---|---|---|
+| `navigator` | 01 AI Voice Navigator: directions in DSO (robot) | send_route_to_phone, research_fact, handover_to_human |
+| `soft-landing` | 02 Soft Landing Guide: company setup | build_setup_checklist, book_appointment, reschedule_appointment, cancel_appointment, research_fact, handover_to_human |
+| `hala` | 03 HALA Concierge: DSO services and bookings | find_service, book_appointment, reschedule_appointment, cancel_appointment, research_fact, handover_to_human |
+| `assistant` | Generic bilingual assistant | research_fact, handover_to_human |
+
+All built-in presets:
+- are bilingual (EN/AR) and switch language mid-conversation;
+- give short answers first;
+- carry facts from the official judge guide;
+- run on the ElevenLabs-hosted `gemini-3.8-flash` LLM;
+- cap a conversation at 300 s.
+
+Demo tool handlers (`createDemoToolHandlers`) emit UI events: `booking`, `route`, `service`, `checklist`, `handover`, `research`.
+- **Calendar:** in memory. Mon–Fri, 08:00–15:00 Dubai time, 30-minute slots. Past times, weekends, out-of-hours times and double bookings are rejected.
+- **Services:** 11 DSO demo services, matched on whole words in English and Arabic.
+- **Places:** DSO landmarks, each with a Google Maps link.
+
+---------------------------------------------------------------------------------------------------
+## 4. Channels: same agent on web, phone, avatar
+
+`kit.ensureAgent(preset, channel)` creates one ElevenLabs agent per channel:
+- **web** (default): WebRTC from the browser, client tools run in the browser.
+- **phone:** μ-law 8 kHz in and out for Twilio Media Streams. Tools run server-side through `connectAgent`. See `apps/phone`: a Twilio `<Connect><Stream>` bridge, an ElevenLabs-voiced keypad menu, and hold music streamed as 20 ms μ-law frames with a `clear` before the agent speaks again.
+- **avatar:** PCM 24 kHz in and out (LiveAvatar requires it). It has no client tools, because the LiveAvatar iframe owns the conversation. Needs `LIVEAVATAR_API_KEY` and `LIVEAVATAR_AVATAR_ID`. See `apps/demo/lib/live-avatar.ts`: store the secret, then import the voice agent, then create the embed, then show it in an iframe.
+
+---------------------------------------------------------------------------------------------------
+## 5. Research and hold music
+
+`createResearchClient({ url?, facts?, timeoutMs? })` returns `(question) => Promise<{answer, sources, cached}>`.
+1. It checks the bundled pre-researched hackathon facts first (about 2 ms, using keyword overlap).
+2. On a miss it calls the hosted research API (`VOICE_KIT_RESEARCH_URL` or `https://voice-kit-research.vercel.app`). That service runs pydantic-ai, with Gemini 3.8 Flash racing OpenAI and web search; a lookup takes about 6–12 s.
+3. On failure it returns "could not verify, a human should confirm".
+
+`withHold(task, hold, { thresholdMs = 1200 })` plays hold music only if the task runs longer than the threshold, and always stops it, even when the task fails.
+- **Browser:** `browserHold('/hold-music.mp3')`.
+- **Phone:** see `apps/phone/src/hold.ts`.
+
+The research tool sets `speakFirst: true`, so the agent says "one moment" before the music starts.
+
+---------------------------------------------------------------------------------------------------
+## 6. Gotchas we hit (save yourself the hours)
+
+- **G1.** ElevenLabs forces English-primary agents onto `eleven_flash_v2`, which is English-only. If such an agent replies in Arabic, the audio is garbled. The kit therefore makes a bilingual preset's first non-English language the agent's base language, which selects `eleven_flash_v2_5`. English becomes a language preset.
+- **G2.** `agents.simulateConversation` was removed on 31 Oct 2026 (HTTP 410). For text-based tests, use `connectAgent` + `sendText`.
+- **G3.** The SDK serialises `undefined` as `null` in some bodies, and the API rejects it. Omit unset fields instead.
+- **G4.** Phone audio must be `ulaw_8000` for both the agent's TTS output and its ASR input. Real Twilio streams send a frame every 20 ms, including silence. A simulator that stops sending audio breaks turn detection.
+- **G5.** LiveAvatar rejects agents whose audio isn't `pcm_24000`, with error 4000 ("Something went wrong" in the iframe).
+- **G6.** Music `pcm_8000` output isn't real 8 kHz. Transcode an MP3 with ffmpeg for phone audio.
+- **G7.** Client tools time out after 10 s by default. Give slow tools `timeoutSecs` (the research tool uses 30).
+- **G8.** Speech Engine and phone bridges need a public `wss://` URL. For local development use `cloudflared tunnel --url http://localhost:PORT`.
+
+---------------------------------------------------------------------------------------------------
+## 7. Environment variables
+
+| Var | Needed for | Where |
+|---|---|---|
+| `ELEVENLABS_API_KEY` | everything (required) | server |
+| `AGENT_ID_<PRESET>` | pin agent IDs instead of auto-provisioning | server |
+| `VOICE_KIT_RESEARCH_URL` | self-hosted research service | server |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `PUBLIC_BASE_URL` | phone add-on | phone server |
+| `LIVEAVATAR_API_KEY`, `LIVEAVATAR_AVATAR_ID` | avatar add-on | server |
+| `GEMINI_API_KEY` | Speech Engine `geminiResponder` only | server |
+
+---------------------------------------------------------------------------------------------------
+## 8. Verify your integration
+
+```bash
+curl "http://localhost:3000/api/token?preset=hala"        # → {"token":"eyJ…","agentId":"agent_…"}
+curl -X POST localhost:3000/api/research -H 'content-type: application/json' -d '{"question":"Which bus routes serve DSO?"}'
+```
+
+Then open your page, click start, allow the mic, and say "مرحبا" or "Hello". The transcript should fill in, and tool events should appear.

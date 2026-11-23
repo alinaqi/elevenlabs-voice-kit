@@ -91,5 +91,8 @@ describe('forChannel', async () => {
     expect(avatar.conversationConfig.agent?.prompt?.tools).toEqual([])
     expect(avatar.conversationConfig.agent?.prompt?.builtInTools?.languageDetection).toBeDefined()
     expect(avatar.conversationConfig.agent?.prompt?.prompt).toMatch(/cannot book/i)
+    // LiveAvatar rejects anything but 24 kHz PCM (API error 4000)
+    expect((avatar.conversationConfig.tts as { agentOutputAudioFormat?: string }).agentOutputAudioFormat).toBe('pcm_24000')
+    expect((avatar.conversationConfig as { asr?: { userInputAudioFormat?: string } }).asr?.userInputAudioFormat).toBe('pcm_24000')
   })
 })

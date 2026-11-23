@@ -14,3 +14,4 @@ services/research/.env.local
 .DS_Store
 __pycache__
 .venv
+*.tsbuildinfo

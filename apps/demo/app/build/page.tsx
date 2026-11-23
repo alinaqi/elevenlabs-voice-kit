@@ -1,5 +1,5 @@
 const SNIPPETS: Array<[string, string]> = [
-  ['1 · install + one key', `npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.0/workhub-voice-kit-0.1.0.tgz @elevenlabs/react
+  ['1 · install + one key', `npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.1/workhub-voice-kit-0.1.1.tgz @elevenlabs/react
 echo "ELEVENLABS_API_KEY=sk_..." >> .env.local`],
   ['2 · drop-in Next.js routes', `// app/api/token/route.ts
 import { createVoiceKit } from '@workhub/voice-kit'

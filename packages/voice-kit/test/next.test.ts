@@ -78,3 +78,14 @@ describe('sttRoute', () => {
     expect((await handler(form(5))).status).toBe(413)
   })
 })
+
+describe('tokenRoute with custom presets', () => {
+  it('provisions a preset passed in by the app', async () => {
+    const { definePreset } = await import('../src/presets/index.js')
+    const clinic = definePreset({ id: 'clinic', name: 'Clinic', description: 'd', languages: ['en'], firstMessage: { en: 'Hi' }, systemPrompt: 'p' })
+    const handler = tokenRoute({ kit: kit as never, presets: { clinic } })
+    const res = await handler(new Request('http://x/api/token?preset=clinic'))
+    expect(res.status).toBe(200)
+    expect(kit.ensureAgent).toHaveBeenLastCalledWith(clinic)
+  })
+})

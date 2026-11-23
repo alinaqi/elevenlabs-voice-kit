@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { getPreset } from '../presets/index.js'
+import type { ResolvedPreset } from '../presets/types.js'
 import type { VoiceKit } from '../server/kit.js'
 import type { ResearchAnswer } from '../tools/handlers.js'
 import { clientIp, createRateLimiter, type Limiter } from './rate-limit.js'
@@ -10,13 +11,20 @@ interface Base { kit: Kit, limiter?: Limiter }
 const error = (status: number, message: string) => Response.json({ error: message }, { status })
 const guard = (limiter: Limiter, req: Request) => limiter(clientIp(req)) ? undefined : error(429, 'Too many requests')
 
+interface TokenOptions extends Base {
+  /** Pin agent IDs per preset (e.g. from env); unpinned presets are auto-provisioned. */
+  agentIds?: Record<string, string | undefined>
+  /** Your own presets (from definePreset), looked up before the built-in ones. */
+  presets?: Record<string, ResolvedPreset>
+}
+
 /** GET /api/token?preset=hala → { token, agentId }. Agent IDs come from env, else auto-provisioned. */
-export function tokenRoute ({ kit, agentIds = {}, limiter = createRateLimiter({ max: 10, windowMs: 60000 }) }: Base & { agentIds?: Record<string, string | undefined> }) {
+export function tokenRoute ({ kit, agentIds = {}, presets = {}, limiter = createRateLimiter({ max: 10, windowMs: 60000 }) }: TokenOptions) {
   return async (req: Request) => {
     const blocked = guard(limiter, req)
     if (blocked) return blocked
     const id = new URL(req.url).searchParams.get('preset') ?? 'assistant'
-    const preset = getPreset(id)
+    const preset = Object.hasOwn(presets, id) ? presets[id] : getPreset(id)
     if (!preset) return error(404, `Unknown preset ${id}`)
     try {
       const agentId = agentIds[id] ?? await kit.ensureAgent(preset)

@@ -14,7 +14,13 @@ function avatarVariant (body: AgentConfigBody): AgentConfigBody {
   return {
     name: `${body.name} (avatar)`,
     tags: [...body.tags.map((t) => `${t}:avatar`), 'voice-kit'],
-    conversationConfig: { ...cc, agent: { ...cc.agent, prompt } }
+    // LiveAvatar lip-syncs from the agent's raw audio and only accepts 24 kHz PCM.
+    conversationConfig: {
+      ...cc,
+      agent: { ...cc.agent, prompt },
+      tts: { ...cc.tts, agentOutputAudioFormat: 'pcm_24000' },
+      asr: { userInputAudioFormat: 'pcm_24000' }
+    } as typeof cc
   }
 }
 

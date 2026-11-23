@@ -57,3 +57,12 @@ footer { border-top: 1px solid var(--line); color: var(--dim); font-size: 12px; 
 footer .palgu { color: var(--yellow); font-weight: 700; letter-spacing: .1em; }
 .ar { direction: rtl; font-family: system-ui, sans-serif; }
 iframe.avatar { width: 100%; aspect-ratio: 9 / 16; max-height: 640px; border: 1px solid var(--line); border-radius: 12px; background: #000; }
+.docs h1 { font-size: 28px; text-transform: none; }
+.docs h2 { font-size: 20px; margin-top: 28px; color: var(--green); }
+.docs h3 { font-size: 16px; margin-top: 20px; color: var(--yellow); }
+.docs hr { border: 0; border-top: 1px dashed var(--line); margin: 28px 0; }
+.docs table { border-collapse: collapse; width: 100%; font-size: 12.5px; display: block; overflow-x: auto; }
+.docs th, .docs td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.docs code { color: var(--blue); }
+.docs pre code { color: inherit; }
+.docs p, .docs li { line-height: 1.65; }

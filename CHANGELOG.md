@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-24
+
+### Added
+- `/docs` page plus `/llms.txt` and `/llms-full.txt` (canonical at the repo root) so Claude Code and Codex can integrate the kit; ready-made prompts.
+- `tokenRoute({ presets })` for app-defined presets; tool specs (`handoverTool`, `researchTool`, …) exported from the package root.
+- Docs-drift test: every `import { … } from '@workhub/voice-kit…'` in llms-full.txt and README must exist.
+- `e2e/avatar.mts` browser test for the LiveAvatar embed.
+
+### Fixed
+- Avatar showed "Something went wrong": LiveAvatar requires the agent's audio as `pcm_24000` (API error 4000). The avatar channel variant now sets 24 kHz PCM for both TTS output and ASR input.
+
+## [0.1.0] - 2026-11-24
+
 ### Added
 - `@workhub/voice-kit` library: one-key `createVoiceKit()` (TTS, STT, voices, music, agents, tokens, signed URLs), presets for the three Voice of the Oasis challenges, client tools, mock DSO calendar/catalogue/places, `withHold` hold-music orchestration, `connectAgent` server-side agent socket, Next.js route handlers, React `useVoiceAgent` hook, Speech Engine helper with Gemini responder, μ-law encoder.
 - Demo app (Next.js) with agent consoles, talking avatar (LiveAvatar), research, TTS, STT and build guide; DSO × ElevenLabs × Doers Summit branding, powered by Palgu.
