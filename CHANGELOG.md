@@ -8,6 +8,7 @@
 - Phone bridge (Twilio Media Streams ⇄ ElevenAgents) with ElevenLabs-voiced EN/AR menu and in-call hold music.
 - Research service (FastAPI + pydantic-ai, Gemini 3.8 Flash + OpenAI) with 36 prefetched hackathon facts.
 - ElevenLabs-generated hold music (MP3 + 8 kHz μ-law).
+- `v0.1.0` release tarball (install via GitHub release URL), `scripts/provision.mts`, research hold-music browser E2E, Vercel/Render deploy config.
 - Live E2E scripts: API smoke test, text conversations, Twilio simulation, headless-browser fake-mic test.
 
 ### Fixed

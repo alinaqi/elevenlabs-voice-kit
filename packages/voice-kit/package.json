@@ -28,12 +28,14 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build"
   },
   "peerDependencies": {
     "@elevenlabs/react": ">=1",
@@ -61,5 +63,11 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.1.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alinaqi/elevenlabs-voice-kit",
+    "directory": "packages/voice-kit"
+  },
+  "license": "MIT"
 }

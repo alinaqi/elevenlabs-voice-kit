@@ -3,7 +3,7 @@ import { Wave } from '@/components/Wave'
 import { CHALLENGES } from '@/lib/challenges'
 import { PHONE_NUMBER } from '@/lib/server'
 
-const QUICKSTART = `npm i @workhub/voice-kit
+const QUICKSTART = `npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.0/workhub-voice-kit-0.1.0.tgz
 # .env — the only key you need
 ELEVENLABS_API_KEY=sk_...
 

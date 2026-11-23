@@ -4,3 +4,5 @@
 .coverage
 tests
 __pycache__
+.env.local
+.env

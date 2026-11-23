@@ -10,9 +10,11 @@ Ship a bilingual (English / عربي) ElevenLabs voice agent in minutes, with **
 - **Research API:** https://voice-kit-research.vercel.app
 
 ```
-npm i @workhub/voice-kit @elevenlabs/react
+npm i https://github.com/alinaqi/elevenlabs-voice-kit/releases/download/v0.1.0/workhub-voice-kit-0.1.0.tgz @elevenlabs/react
 echo "ELEVENLABS_API_KEY=sk_..." >> .env.local
 ```
+
+The package installs from the GitHub release tarball; an npm registry publish is pending. Imports use `@workhub/voice-kit`.
 
 ## What's inside
 
