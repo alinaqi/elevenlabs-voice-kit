@@ -1,0 +1,17 @@
+{
+  "name": "elevenlabs-starter-kit",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @workhub/voice-kit && npm run build -w demo",
+    "test": "npm test -w @workhub/voice-kit",
+    "typecheck": "npm run typecheck -w @workhub/voice-kit"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}

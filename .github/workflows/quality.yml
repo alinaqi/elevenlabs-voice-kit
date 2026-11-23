@@ -1,0 +1,25 @@
+name: quality
+on: [push, pull_request]
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck -w @workhub/voice-kit
+      - run: npm test -w @workhub/voice-kit
+      - run: npm run build -w @workhub/voice-kit
+      - run: npm test -w @voice-kit/phone
+      - run: npm run typecheck -w @voice-kit/phone
+      - run: npm run build -w apps/demo
+  python:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: services/research } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run pytest -q

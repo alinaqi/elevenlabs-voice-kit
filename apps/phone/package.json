@@ -1,0 +1,20 @@
+{
+  "name": "@voice-kit/phone",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --env-file=../../.env.local src/main.ts",
+    "start": "tsx src/main.ts",
+    "test": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "setup:number": "tsx --env-file=../../.env.local scripts/point-number.ts"
+  },
+  "dependencies": {
+    "@workhub/voice-kit": "^0.1.0",
+    "tsx": "^4.23.15",
+    "ws": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.2"
+  }
+}

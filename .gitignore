@@ -1,0 +1,16 @@
+node_modules
+dist
+.next
+.env
+.env.local
+.env*.local
+.vercel
+coverage
+CLAUDE.local.md
+.mnemos
+e2e/out
+services/research/.env.local
+*.log
+.DS_Store
+__pycache__
+.venv

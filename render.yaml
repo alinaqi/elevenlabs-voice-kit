@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: voice-kit-phone
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build -w @workhub/voice-kit
+    startCommand: npm start -w @voice-kit/phone
+    healthCheckPath: /health
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: NODE_VERSION
+        value: "22"
